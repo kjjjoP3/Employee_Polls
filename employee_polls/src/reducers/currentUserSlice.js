@@ -10,9 +10,11 @@ const currentUserSlice = createSlice({
     reducers: {
         currentUser: (state, action) => {
             state.value = action.payload;
+            sessionStorage.setItem('currentUser', JSON.stringify(action.payload));
         },
         logout: (state) => {
             state.value = [];
+            sessionStorage.removeItem('currentUser');
         },
     },
 });

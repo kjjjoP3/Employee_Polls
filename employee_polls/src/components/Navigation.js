@@ -1,7 +1,7 @@
 import { useEffect } from "react"; // Import useEffect here
 import { Menubar } from "primereact/menubar";
 import { Button } from "primereact/button";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { logout } from "../reducers/currentUserSlice";
 import logo from "./../logo.svg";
@@ -10,10 +10,14 @@ const Navigation = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation(); // Get location for checking the current path
-  const userData = useSelector((state) => state.currentUser.value);
+
+  // Retrieve user data from session storage
+  const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const userData = storedUser ? storedUser : []; // If not found, set to empty array
 
   const handleLogout = () => {
     dispatch(logout());
+    sessionStorage.removeItem('currentUser'); // Clear session storage on logout
     navigate("/");
   };
 

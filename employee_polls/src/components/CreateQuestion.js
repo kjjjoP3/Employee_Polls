@@ -2,7 +2,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Card } from 'primereact/card';
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { saveQuestion } from '../reducers/questionSlice';
 import 'primeflex/primeflex.css';
@@ -11,17 +11,20 @@ export const CreateQuestion = () => {
   const [firstOption, setFirstOption] = useState('');
   const [secondOption, setSecondOption] = useState('');
   const [hasError, setHasError] = useState(false);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const currentUser = useSelector((state) => state.currentUser.value);
+
+  // Retrieve currentUser from session storage
+  const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const currentUser = storedUser ? storedUser : [];
 
   const handleSubmit = () => {
     if (firstOption && secondOption) {
       const questionData = {
         optionOneText: firstOption,
         optionTwoText: secondOption,
-        author: currentUser[0],
+        author: currentUser[0], // Assuming currentUser[0] contains the username
       };
       dispatch(saveQuestion(questionData));
       navigate('/home');

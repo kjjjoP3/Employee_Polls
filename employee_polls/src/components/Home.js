@@ -12,16 +12,19 @@ import '../Home.css';
 export const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const loggedInUser = useSelector(state => state.currentUser.value);
+  const dispatch = useDispatch();
   const questionsData = useSelector(state => state.questions.value);
   
-  const dispatch = useDispatch();
   const [isNotificationVisible, setIsNotificationVisible] = useState(false);
   const [notificationContent, setNotificationContent] = useState("");
 
   useEffect(() => {
     dispatch(getQuestions());
   }, [dispatch]);
+
+  // Check session storage for current user
+  const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
+  const loggedInUser = storedUser ? storedUser : []; // If not found, set to empty array
 
   useEffect(() => {
     if (!loggedInUser.length) {
@@ -94,3 +97,5 @@ export const Home = () => {
     </div>
   );
 };
+
+export default Home;

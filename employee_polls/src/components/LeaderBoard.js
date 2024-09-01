@@ -4,9 +4,11 @@ import { getQuestions } from "../reducers/questionSlice";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
+import { useNavigate } from 'react-router-dom';
 
 export const LeaderBoard = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const users = useSelector((state) => state.allUser.value);
   const questions = useSelector((state) => state.questions.value);
 
@@ -16,12 +18,20 @@ export const LeaderBoard = () => {
     dispatch(getQuestions());
   }, [dispatch]);
 
+  // Check if user is logged in by checking session storage
+  useEffect(() => {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    if (!currentUser || currentUser.length === 0) {
+      navigate('/'); // Redirect to login if not logged in
+    }
+  }, [navigate]);
+
   // Populate leaderboard data
   Object.values(users).forEach(user => {
     const answeredCount = Object.values(questions).filter(
       question => question.optionOne.votes.includes(user.id) || question.optionTwo.votes.includes(user.id)
     ).length;
-    
+
     const createdCount = Object.values(questions).filter(
       question => question.author === user.id
     ).length;

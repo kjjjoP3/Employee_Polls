@@ -14,7 +14,10 @@ import { PageNotFound } from './components/PageNotFound';
 import { useSelector } from 'react-redux';
 
 function App() {
-  const currentUser = useSelector(state => (state.currentUser.value));
+    const currentUser = useSelector(state => state.currentUser.value.length > 0 
+        ? state.currentUser.value 
+        : JSON.parse(sessionStorage.getItem('currentUser')) || []
+      );
   
   return (
     <div className="App">
