@@ -3,106 +3,93 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useLocation } from "react-router-dom";
 import { getUsers } from "../reducers/authenSlice";
 import { currentUser } from "../reducers/currentUserSlice";
-
-// import 'primeflex/primeflex.css';
+import { Card } from 'primereact/card';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
 
 export const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const allUser = useSelector((state) => state.allUser);
+  const [userInput, setUserInput] = useState({ username: "", password: "" });
+  const [errorVisible, setErrorVisible] = useState(false);
+  const usersList = useSelector((state) => state.allUser.value); // Ensure you access the 'value' property
+  const loggedInUser = useSelector((state) => state.currentUser.value);
 
-  const path = location?.pathname;
   useEffect(() => {
-    dispatch(getUsers());
-  }, []);
-  console.log(path)
-  const handleClick = (event) => {
-    setPassword(password);
-    setUsername(username);
-    if(username && password) {
-      const user = Object.entries(allUser.value).filter(
-        (val) => val[1].id === username && val[1].password === password
-      );
-      if (user && user.length) {
-        dispatch(currentUser(user[0]));
-        setError(false);
-        setSuccess(true);
-       if(path == '/') navigate('/home')
-       else navigate(path, { replace: true });
-        
-      } else {
-        setError(true);
-        setSuccess(false);
-      }
+    if (loggedInUser.length > 0) {
+      navigate('/home', { replace: true }); // Redirect logged-in users to home
+    } else {
+      dispatch(getUsers());
     }
-    else {
-      setError(true);
-      setSuccess(false);
-    }
-    
-  };
-  return (
-    <div
-      className="card"
-      style={{
-        position: "absolute",
-        width: "100%",
-        top: "50%",
-        textAlign: "center",
-        transform: "translateY(-50%)",
-      }}
-    >
-      <div className="text-center">
-        <h1>Employee Polls</h1>
-        <h1>Login</h1>
-        {error && (
-          <div className="error" data-testid="fail-id">
-            <small>Incorect Username or Password</small>
-          </div>
-        )}
-        {success && (
-          <div className="success" data-testid="success-id">
-            <small>Success login</small>
-          </div>
-        )}
-      </div>
+  }, [loggedInUser, dispatch, navigate]);
 
-      <div  style={{ marginBottom: "10px" }}>
-        <span>
-          <label style={{ marginRight: "8px" }} htmlFor="username">
-            Username
-          </label>
-          <input data-testid="username-input"
-            style={{ padding: "8px" }}
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+  const handleLogin = () => {
+    const { username, password } = userInput;
+
+    if (username && password) {
+      const foundUser = Object.entries(usersList).find(
+        ([, user]) => user.id === username && user.password === password
+      );
+
+      if (foundUser) {
+        dispatch(currentUser(foundUser));
+        setErrorVisible(false);
+        setUserInput({ username: "", password: "" }); // Clear input fields
+        navigate('/home', { replace: true, state: { success: "Login Successful!" } });
+      } else {
+        setErrorVisible(true);
+      }
+    } else {
+      setErrorVisible(true);
+    }
+  };
+
+  return (
+    <div className="flex justify-content-center align-items-center vh-100">
+      <Card title="Employee Polls" className="shadow" style={{ width: '400px' }}>
+        <h3 className="text-center mb-4">Login</h3>
+        {errorVisible && (
+          <Message severity="error" text="Incorrect Username or Password" />
+        )}
+        <form>
+          <div className="mb-4">
+            <label htmlFor="username" className="p-float-label">
+              <InputText
+                data-testid="username-input"
+                id="username"
+                value={userInput.username}
+                onChange={(e) => setUserInput({ ...userInput, username: e.target.value })}
+                required
+              />
+              <label htmlFor="username">Username</label>
+            </label>
+          </div>
+          <div className="mb-4">
+            <label htmlFor="password" className="p-float-label">
+              <InputText
+                data-testid="password-input"
+                id="password"
+                type="password"
+                value={userInput.password}
+                onChange={(e) => setUserInput({ ...userInput, password: e.target.value })}
+                required
+              />
+              <label htmlFor="password">Password</label>
+            </label>
+          </div>
+          <Button
+            type="button"
+            label="Login"
+            className="w-full"
+            onClick={handleLogin}
+            data-testid="submit"
           />
-        </span>
-      </div>
-      <div style={{ marginBottom: "10px" }}>
-        <span className="p-float-label">
-          <label style={{ marginRight: "8px" }} htmlFor="password">
-            Password
-          </label>
-          <input data-testid="password-input"
-            style={{ padding: "8px" }}
-            type="text"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </span>
-      </div>
-      <div>
-        <input type="submit" onClick={handleClick} data-testid='submit' value="Login"/>
-      </div>
+        </form>
+      </Card>
     </div>
   );
 };
+
+export default Login;

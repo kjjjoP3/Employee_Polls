@@ -1,180 +1,114 @@
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getQuestions, saveQuestionAnswer } from "../reducers/questionSlice";
-import { useEffect, useState } from "react";
+import { Card } from 'primereact/card';
+import { Button } from 'primereact/button';
+import { Image } from 'primereact/image';
 
 export const AnswerQuestion = () => {
-const dispatch = useDispatch();
-const navigate = useNavigate();
-const [isDisable, setIsDisable] = useState(false);
-const [isOption1, setIsOption1] = useState(false);
-const [isOption2, setIsOption2] = useState(false);
-const [voteOption1, setVoteOption1] = useState(0);
-const [voteOption2, setVoteOption2] = useState(0);
-const [answer, setAnswer] = useState("");
-const [currentUser, setCurrentUser] = useState([]);
-const [questions, setQuestions] = useState([]);
-const [users, setUsers] = useState([]);
-const [questionCurrent, setQuestionCurrent] = useState([]);
-const [authorCurrent, setAuthorCurrent] = useState({});
-const a = useSelector((state) => state.currentUser.value);
-const b = useSelector((state) => state.questions.value);
-const c = useSelector((state) => state.allUser.value);
-const params = useParams();
-const questionId = params.question_id;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [isOptionDisabled, setOptionDisabled] = useState(false);
+  const [selectedOption1, setSelectedOption1] = useState(false);
+  const [selectedOption2, setSelectedOption2] = useState(false);
+  const [voteCountOption1, setVoteCountOption1] = useState(0);
+  const [voteCountOption2, setVoteCountOption2] = useState(0);
+  const [currentUser, setCurrentUser] = useState([]);
+  const [currentQuestion, setCurrentQuestion] = useState({});
+  const [authorDetails, setAuthorDetails] = useState({});
+  
+  const currentUserState = useSelector((state) => state.currentUser.value);
+  const questionsState = useSelector((state) => state.questions.value);
+  const usersState = useSelector((state) => state.allUser.value);
+  const { question_id } = useParams();
 
-const d = Object.values(b).filter((val) => {
-    return val.id === questionId;
-});
-const s = useSelector(state => state.questions.value)
-console.log(s)
-useEffect(()=> {
-dispatch(getQuestions())
+  const question = Object.values(questionsState).find(q => q.id === question_id);
 
-}, [])
-useEffect(() => {
-    
-    setCurrentUser(a);
-    setQuestions(Object.values(b));
-    setUsers(Object.values(c));
-    
-    if (!d.length) {
-    navigate("/404");
-    }
-    setQuestionCurrent(d);
-    const e = Object.values(c).filter((val) => val.id === d[0]?.author);
-    setAuthorCurrent(e);
-    setIsOption1(d[0]?.optionOne.votes.includes(
-    a[0]
-    ));
-    
-    setIsOption2(d[0]?.optionTwo.votes.includes(
-    a[0]
-    ));
-    setVoteOption1(d[0]?.optionOne.votes.length)
-    setVoteOption2(d[0]?.optionTwo.votes.length)
-    if (d[0]?.optionOne.votes.includes(
-    a[0]
-    ) || d[0]?.optionTwo.votes.includes(
-    a[0]
-    )) {
-    setIsDisable(true);
-    }
-}, [b]);
-const handleAnswer = (val) => {
-    if (isDisable == false) {
-    setIsDisable(true);
-    setAnswer(val);
-    if(val == 'optionOne') {
-        setVoteOption1( voteOption1+ 1);
-        setIsOption1(true);
-    }
-    else {
-        setVoteOption2(voteOption2 + 1);
-        setIsOption2(true);
-    }
-    const a = { authedUser: currentUser[0], qid: questionId, answer: val };
-    dispatch(saveQuestionAnswer(a));
-    }
-};
+  useEffect(() => {
+    dispatch(getQuestions());
+  }, [dispatch]);
 
-const title = "Poll by " + questionCurrent[0]?.author;
-return (
-    <div style={{ display: 'flex', justifyContent: 'center', textAlign: 'center'}}>
-    <div>
-        <h2>{title}</h2>
+  useEffect(() => {
+    setCurrentUser(currentUserState);
 
-        <img
-        src={authorCurrent[0]?.avatarURL}
-        alt="Image"
-        style={{ width: '200px', borderRadius: '50%'}}
-        
+    if (!question) {
+      navigate("/404");
+    } else {
+      setCurrentQuestion(question);
+      const authorInfo = Object.values(usersState).find(user => user.id === question.author);
+      setAuthorDetails(authorInfo || {});
+      setVoteCountOption1(question.optionOne.votes.length);
+      setVoteCountOption2(question.optionTwo.votes.length);
+      setSelectedOption1(question.optionOne.votes.includes(currentUserState[0]));
+      setSelectedOption2(question.optionTwo.votes.includes(currentUserState[0]));
+      setOptionDisabled(selectedOption1 || selectedOption2);
+    }
+  }, [currentUserState, question, navigate, usersState]);
+
+  const handleVote = (option) => {
+    if (!isOptionDisabled) {
+      setOptionDisabled(true);
+      const voteData = {
+        authedUser: currentUser[0],
+        qid: question_id,
+        answer: option,
+      };
+
+      if (option === 'optionOne') {
+        setVoteCountOption1(prevCount => prevCount + 1);
+        setSelectedOption1(true);
+      } else {
+        setVoteCountOption2(prevCount => prevCount + 1);
+        setSelectedOption2(true);
+      }
+      
+      dispatch(saveQuestionAnswer(voteData));
+    }
+  };
+
+  const title = `Poll by ${authorDetails.name}`;
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', textAlign: 'center' }}>
+      <Card title={title} style={{ width: '400px' }}>
+        <Image
+          src={authorDetails.avatarURL}
+          alt={`${authorDetails.name}'s Avatar`}
+          style={{ width: '200px', borderRadius: '50%' }}
         />
         <h1>Would You Rather</h1>
 
-        <div
-        className="answer"
-        style={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "stretch",
-        }}
-        >
-        <div
-            style={
-            isOption1
-                ? {
-                    background: "#76db9b",
-                    display: "inline-block",
-                    padding: "10px",
-                    marginRight: "10px",
-                    width: '400px'
-                }
-                : {
-                    border: "1px solid #85b2f9",
-                    display: "inline-block",
-                    padding: "10px",
-                    marginRight: "10px",
-                    width: '400px'
-                }
-            }
-        >
-            <h3 onClick={()=> handleAnswer("optionOne")}>
-            {questionCurrent[0]?.optionOne?.text}{" "}
-            </h3>
-            <br />
-            <span
-            style={
-                isDisable
-                ? { display: "inline-block" }
-                : { display: "none" }
-            }
-            >
-            voted people: {voteOption1}
-            <br /> percentage:
-            {((voteOption1 * 100) /
-                (voteOption1+ voteOption2)).toFixed(2)}
-            %
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <Button 
+            label={currentQuestion.optionOne?.text}
+            className={selectedOption1 ? "p-button-success" : "p-button-outlined"}
+            onClick={() => handleVote("optionOne")}
+            style={{ width: '100%', marginBottom: '10px' }}
+            disabled={isOptionDisabled}
+          />
+          {isOptionDisabled && (
+            <span>
+              Voted: {voteCountOption1} <br />
+              Percentage: {((voteCountOption1 * 100) / (voteCountOption1 + voteCountOption2)).toFixed(2)}%
             </span>
-            
-        </div>
-        <div
-            style={
-            isOption2
-                ? {
-                    background: "#76db9b",
-                    display: "inline-block",
-                    padding: "10px",
-                    width: '400px'
-                }
-                : {
-                    border: "1px solid #85b2f9",
-                    display: "inline-block",
-                    padding: "10px", width: '400px'
-                }
-            }
-        >
-            <h3 onClick={() => handleAnswer("optionTwo")}>
-            {questionCurrent[0]?.optionTwo?.text}{" "}
-            </h3>
-            <br />
-            <span
-            style={
-                isDisable
-                ? { display: "inline-block" }
-                : { display: "none" }
-            }
-            >
-            voted people: {voteOption2}
-            <br /> percentage:
-            {((voteOption2 * 100) /
-                (voteOption1+ voteOption2)).toFixed(2)}
-            %
+          )}
+
+          <Button 
+            label={currentQuestion.optionTwo?.text}
+            className={selectedOption2 ? "p-button-success" : "p-button-outlined"}
+            onClick={() => handleVote("optionTwo")}
+            style={{ width: '100%', marginTop: '10px' }}
+            disabled={isOptionDisabled}
+          />
+          {isOptionDisabled && (
+            <span>
+              Voted: {voteCountOption2} <br />
+              Percentage: {((voteCountOption2 * 100) / (voteCountOption1 + voteCountOption2)).toFixed(2)}%
             </span>
+          )}
         </div>
-        </div>
+      </Card>
     </div>
-    </div>
-);
+  );
 };

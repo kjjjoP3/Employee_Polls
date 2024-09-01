@@ -1,0 +1,17 @@
+.notification {
+    position: fixed; /* Fixed position */
+    top: 20px; /* Adjust top positioning as needed */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Centering */
+    padding: 10px 20px; /* Padding for the notification */
+    background-color: #4caf50; /* Green background for success */
+    color: white; /* White text */
+    border-radius: 5px; /* Rounded corners */
+    z-index: 1000; /* Ensures it is above other content */
+    opacity: 0; /* Start with hidden opacity */
+    transition: opacity 0.5s ease; /* Smooth transition for opacity */
+  }
+  
+  .notification.show {
+    opacity: 1; /* Fully visible */
+  }

@@ -1,0 +1,46 @@
+body {
+    text-align: center;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .card {
+    background: white;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .alert {
+    margin-bottom: 20px;
+  }
+  
+  .form-label {
+    font-weight: 500;
+  }
+  
+  .form-control {
+    border: 2px solid #ced4da;
+    border-radius: 10px;
+    transition: border-color 0.3s;
+  }
+  
+  .form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+  }
+  
+  .btn {
+    border: none;
+    transition: background-color 0.3s;
+  }
+  
+  .btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .link-secondary {
+    color: #007bff;
+  }
+  
+  .link-secondary:hover {
+    text-decoration: underline;
+  }
+  

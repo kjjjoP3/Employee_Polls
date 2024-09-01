@@ -1,56 +1,64 @@
-
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getQuestions } from "../reducers/questionSlice";
+import { DataTable } from 'primereact/datatable';
+import { Column } from 'primereact/column';
+import { Card } from 'primereact/card';
 
 export const LeaderBoard = () => {
   const dispatch = useDispatch();
   const users = useSelector((state) => state.allUser.value);
-  const question = useSelector((state) => state.questions.value);
+  const questions = useSelector((state) => state.questions.value);
 
- let a = [];
- useEffect(()=> {
-  dispatch(getQuestions());
- }, [])
-  Object.values(users).map(val => {
-    a.push({name: val.name, avatarURL: val.avatarURL,answer:  (Object.values(question).filter(item => item.optionOne.votes.includes(val.id) === true || item.optionTwo.votes.includes(val.id)=== true)).length, 
-    create: Object.values(question).filter(item => item.author === val.id).length})
-  })
-  
+  const leaderboardData = [];
 
-a.sort((firstItem, secondItem) => (secondItem.answer + secondItem.create) - (firstItem.answer + firstItem.create));
-console.log(a)
+  useEffect(() => {
+    dispatch(getQuestions());
+  }, [dispatch]);
+
+  // Populate leaderboard data
+  Object.values(users).forEach(user => {
+    const answeredCount = Object.values(questions).filter(
+      question => question.optionOne.votes.includes(user.id) || question.optionTwo.votes.includes(user.id)
+    ).length;
+    
+    const createdCount = Object.values(questions).filter(
+      question => question.author === user.id
+    ).length;
+
+    leaderboardData.push({
+      name: user.name,
+      avatarURL: user.avatarURL,
+      answered: answeredCount,
+      created: createdCount,
+      score: answeredCount + createdCount
+    });
+  });
+
+  // Sort leaderboard data by score
+  leaderboardData.sort((a, b) => b.score - a.score);
+
   return (
-    <div>
-      <div className="card">
-        <table>
-          <thead>
-            <tr>
-              <th>Users</th>
-              <th>Answered</th>
-              <th>Created</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {a.map((val) => {
-              return (
-                <tr key={val.name}>
-                  <td>
-                    <img
-                      src={val.avatarURL}
-                      height="40"
-                    />
-                    <span>{val.name}</span>
-                  </td>
-                  <td>{val.answer}</td>
-                  <td>{val.create}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+    <div className="p-4">
+      <Card title="Leader Board" className="shadow-2">
+        <DataTable value={leaderboardData} paginator rows={10} className="mt-3">
+          <Column
+            header="Users"
+            body={(rowData) => (
+              <div className="flex align-items-center">
+                {rowData.avatarURL ? (
+                  <img src={rowData.avatarURL} alt={rowData.name} height="40" className="mr-2" />
+                ) : (
+                  <div className="mr-2" style={{ height: '40px', width: '40px', backgroundColor: '#f0f0f0', borderRadius: '50%' }}></div>
+                )}
+                <span>{rowData.name}</span>
+              </div>
+            )}
+          />
+          <Column field="answered" header="Answered" />
+          <Column field="created" header="Created" />
+        </DataTable>
+      </Card>
     </div>
   );
 };
