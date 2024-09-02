@@ -36,7 +36,7 @@ export const Login = () => {
       if (foundUser) {
         dispatch(currentUser(foundUser));
         setErrorVisible(false);
-        setUserInput({ username: "", password: "" }); // Clear input fields
+        setUserInput({ username: "", password: "" });
         navigate('/home', { replace: true, state: { success: "Login Successful!" } });
       } else {
         setErrorVisible(true);

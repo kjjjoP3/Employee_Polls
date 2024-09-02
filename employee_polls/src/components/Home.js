@@ -24,7 +24,7 @@ export const Home = () => {
 
   // Check session storage for current user
   const storedUser = JSON.parse(sessionStorage.getItem('currentUser'));
-  const loggedInUser = storedUser ? storedUser : []; // If not found, set to empty array
+  const loggedInUser = storedUser ? storedUser : [];
 
   useEffect(() => {
     if (!loggedInUser.length) {

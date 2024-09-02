@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getQuestions } from "../reducers/questionSlice";
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
-import { Card } from 'primereact/card';
-import { useNavigate } from 'react-router-dom';
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Card } from "primereact/card";
+import { useNavigate } from "react-router-dom";
 
 export const LeaderBoard = () => {
   const dispatch = useDispatch();
@@ -18,22 +18,22 @@ export const LeaderBoard = () => {
     dispatch(getQuestions());
   }, [dispatch]);
 
-  // Check if user is logged in by checking session storage
   useEffect(() => {
-    const currentUser = JSON.parse(sessionStorage.getItem('currentUser'));
+    const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
     if (!currentUser || currentUser.length === 0) {
-      navigate('/'); // Redirect to login if not logged in
+      navigate("/");
     }
   }, [navigate]);
 
-  // Populate leaderboard data
-  Object.values(users).forEach(user => {
+  Object.values(users).forEach((user) => {
     const answeredCount = Object.values(questions).filter(
-      question => question.optionOne.votes.includes(user.id) || question.optionTwo.votes.includes(user.id)
+      (question) =>
+        question.optionOne.votes.includes(user.id) ||
+        question.optionTwo.votes.includes(user.id)
     ).length;
 
     const createdCount = Object.values(questions).filter(
-      question => question.author === user.id
+      (question) => question.author === user.id
     ).length;
 
     leaderboardData.push({
@@ -41,12 +41,23 @@ export const LeaderBoard = () => {
       avatarURL: user.avatarURL,
       answered: answeredCount,
       created: createdCount,
-      score: answeredCount + createdCount
+      score: answeredCount + createdCount,
     });
   });
 
-  // Sort leaderboard data by score
-  leaderboardData.sort((a, b) => b.score - a.score);
+  if (
+    (users && Object.keys(users).length > 0) ||
+    (questions && Object.keys(questions).length > 0)
+  ) {
+    sessionStorage.setItem("leaderboardData", JSON.stringify(leaderboardData));
+  }
+
+  let leaderboardSession =
+    JSON.parse(sessionStorage.getItem("leaderboardData")) || [];
+
+  if (leaderboardSession.length > 0) {
+    leaderboardSession.sort((a, b) => b.score - a.score);
+  }
 
   return (
     <div className="p-4">
@@ -57,9 +68,22 @@ export const LeaderBoard = () => {
             body={(rowData) => (
               <div className="flex align-items-center">
                 {rowData.avatarURL ? (
-                  <img src={rowData.avatarURL} alt={rowData.name} height="40" className="mr-2" />
+                  <img
+                    src={rowData.avatarURL}
+                    alt={rowData.name}
+                    height="40"
+                    className="mr-2"
+                  />
                 ) : (
-                  <div className="mr-2" style={{ height: '40px', width: '40px', backgroundColor: '#f0f0f0', borderRadius: '50%' }}></div>
+                  <div
+                    className="mr-2"
+                    style={{
+                      height: "40px",
+                      width: "40px",
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: "50%",
+                    }}
+                  ></div>
                 )}
                 <span>{rowData.name}</span>
               </div>

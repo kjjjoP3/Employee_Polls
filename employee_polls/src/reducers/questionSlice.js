@@ -32,17 +32,16 @@ const questionSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(getQuestions.fulfilled, (state, action) => {
-                state.value = action.payload; // Store fetched questions
+                state.value = action.payload;
+                sessionStorage.setItem('questions', JSON.stringify(action.payload));
             })
             .addCase(saveQuestion.fulfilled, (state, action) => {
-                // Add newly saved question to the state
                 const newQuestion = action.payload;
                 state.value[newQuestion.id] = newQuestion;
             })
             .addCase(saveQuestionAnswer.fulfilled, (state, action) => {
                 const { qid, answer, authedUser } = action.meta.arg;
 
-                // Check if the question exists before trying to update
                 if (state.value[qid]) {
                     state.value[qid][answer].votes.push(authedUser);
                 }

@@ -11,6 +11,7 @@ import { AnswerQuestion } from './components/AnswerQuestion';
 import { Home } from './components/Home';
 import { CreateQuestion } from './components/CreateQuestion';
 import { PageNotFound } from './components/PageNotFound';
+import ProtectedRoute from './components/ProtectedRoute';
 import { useSelector } from 'react-redux';
 
 function App() {
@@ -23,17 +24,13 @@ function App() {
     <div className="App">
       {currentUser?.length && <Navigation />}
       <Routes>
-        {currentUser?.length && currentUser[1]?.id?.length ? <>
-          <Route path='/' exact element={<Login />} />
-          <Route path='/home' exact element={<Home />} />
-          <Route path='/leaderboard' exact element={<LeaderBoard />} />
-          <Route path='/add' exact element={<CreateQuestion />} />
-          <Route path='/questions/:question_id' exact element={<AnswerQuestion />} />
-        </>
-        : <Route path='*' exact element={<Login />}/>
-        }
-        <Route path='/404' element={<PageNotFound />} />
-        <Route path='*' element={<PageNotFound />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/home" element={<ProtectedRoute element={<Home />} />} />
+        <Route path="/leaderboard" element={<ProtectedRoute element={<LeaderBoard />} />} />
+        <Route path="/add" element={<ProtectedRoute element={<CreateQuestion />} />} />
+        <Route path="/questions/:question_id" element={<ProtectedRoute element={<AnswerQuestion />} />} />
+        <Route path="/404" element={<PageNotFound />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </div>
   );
