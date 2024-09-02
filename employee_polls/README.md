@@ -6,10 +6,24 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
-### `npm start`
+1. **Clone the Repository**  
+   Clone this repository to your local machine using the following command:
+   ```bash
+   git clone https://github.com/kjjjoP3/Employee_Polls.git
+2. **Navigate to the Project Directory**  
+    Change into the project directory:    
+   ```bash
+   cd employee_polls
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+4. **Install Dependencies**
+    Install the necessary dependencies:
+   ```bash 
+   npm install
+
+5. **Start the Application**
+    Start the development server:
+   ```bash 
+   npm start   
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.
